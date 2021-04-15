@@ -213,7 +213,7 @@ class MinimalRnR(object, metaclass=abc.ABCMeta):
                 if not ret:
                     continue
                 else:
-                    answer, passage = ret
+                    answer, passage, start_index, ent_index = ret
                     title = retrieved_titles[passage_idx]
 
                 if not return_context:
@@ -271,7 +271,7 @@ class MinimalRnR(object, metaclass=abc.ABCMeta):
             ret = self._get_answer_and_passage(start_index, end_index, chosen_span_intervals, title_passage_ids)
             if not ret:
                 continue
-            answer, passage = ret
+            answer, passage, start_index, end_index = ret
             title = retrieved_titles[top_passage_idx]
 
             if not return_context:
@@ -310,4 +310,4 @@ class MinimalRnR(object, metaclass=abc.ABCMeta):
 
         answer = self.tokenizer.decode(passage[start_index:end_index + 1])
 
-        return answer, passage
+        return answer, passage, start_index, end_index
