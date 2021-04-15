@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>Minimal R&R QA</title>
+
+<!-- Copied and modified from https://github.com/uwnlp/denspi-->
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-39035380-6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-39035380-6');
+</script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<link rel=”stylesheet” href=”https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="files/style.css">
+<link rel="shortcut icon" href="files/icon.png">
+
+<script src="static/files/all.js"></script>
+<script src="static/files/jquery-3.3.1.min.js"></script>
+<script src="static/files/popper.min.js"></script>
+<script src="static/files/bootstrap.min.js"></script>
+
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="">Minimal R&R QA</a>
+    <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" target="_blank" href="#">Paper</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" target="_blank" href="https://github.com/clovaai/minimal-rnr-qa">GitHub</a>
+        </li>
+    </ul>
+</nav>
+<div class="container" id="container">
+
+    <div class="input-group mb-1 mt-4">
+        <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">Examples
+            </button>
+            <div class="dropdown-menu" id="examples">
+            </div>
+        </div>
+
+        <input id="question" type="text" class="form-control" placeholder="Write a question"
+               aria-label="Write a question"
+               autofocus>
+        <div class="input-group-append">
+            <button id="search" class="btn btn-secondary" type="button">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="ret-time" class="text-secondary small ml-2 col">Latency:</div>
+        <div class="custom-control custom-checkbox mr-3">
+            5.8% of Wikipedia EN (Dec. 20, 2018 dump)
+        </div>
+    </div>
+
+    <div class="form-row align-items-center">
+        <div class="col-auto">
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">top_k</div>
+                </div>
+                <input type="text" class="form-control" value="50" id="top-k">
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">passage_score_weight</div>
+                </div>
+                <input type="text" class="form-control" value="null" id="passage-score-weight">
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div class="card">
+        <ul id="ret-results" class="list-group list-group-flush">
+            <li class="list-group-item"></li>
+        </ul>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <div class="container">
+			<span class="text-muted">
+				<strong>Minimal R&R</strong><br/>
+                Sohee Yang and Minjoon Seo. Designing a Minimal Retrieve-and-Read Systemfor Open-Domain Question Answering. In NAACL 2021.<br/>
+			</span>
+    </div>
+</footer>
+
+
+<script>
+    var tout_id = 0;
+    $("#realtime_chk").prop('checked', false);
+
+    $("#question").bind("input", function () {
+        var query = $("#question").val();
+        clearTimeout(tout_id);
+        var is_real = $("#realtime_chk").is(":checked") == true;
+        if (is_real) {
+            if (query.trim().length > 0) {
+                tout_id = window.setTimeout(execute, 1000000, query);
+            } else {
+                init_result();
+            }
+        }
+    });
+
+    $("#question").keypress(function (e) {
+        if (e.which == 13) {
+            $("#search").click();
+        }
+    });
+
+    $("#search").click(function () {
+        var query = $("#question").val();
+        if (query.trim().length > 0) {
+            execute(query);
+        } else {
+            init_result();
+        }
+    });
+
+    function init_result() {
+        $("#ret-time").text("Latency: ");
+        $("#ret-results").html("<li class=\"list-group-item\"></li>");
+    }
+
+    function execute(text) {
+        $("#ret-time").text("Latency: ");
+        var start_time = +new Date();
+
+        var top_k = $('#top-k').val();
+        var passage_score_weight = $('#passage-score-weight').val();
+
+        var params = "&top_k=" + top_k + "&passage_score_weight=" + passage_score_weight;
+
+        $.get("/api?query=" + encodeURIComponent(text) + params, function (out) {
+            var end_time = +new Date();
+            var total_latency = end_time - start_time;
+            $("#ret-time").text("Latency: " + out['time'] + "s");
+            $("#ret-results").empty();
+            result = out['ret'];
+            console.log(result);
+            for (var i = 0; i < result.length; i++) {
+                $("#ret-results").append("<li class=\"list-group-item\"><div class=\"row\">"
+                    + "<div class=\"col-10\">" + result[i]["context"] + "</div>"
+                    + "<div class=\"col-2 text-right\">" + result[i]["title"] + "</div>"
+                    + "</div></li>")
+            }
+        });
+    }
+
+    $.getJSON("/get_examples", function (examples) {
+        for (let example of examples) {
+            $('#examples').append("<a class=\"dropdown-item\" href=\"#\">" + example + "</a>");
+        }
+    });
+
+    $("#container").on("click", ".dropdown-item", function (event) {
+        $('#question').val($(event.target).text());
+        $('#question').focus();
+    });
+
+    $(".strat").click(function() {
+        $('#question').focus();
+    });
+
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+torch==1.4.0
+transformers==3.0.2
+faiss
+faiss-cpu
+numpy

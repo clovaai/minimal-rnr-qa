@@ -1,0 +1,3 @@
+faiss
+faiss-cpu
+numpy

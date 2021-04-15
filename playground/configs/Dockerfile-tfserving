@@ -1,0 +1,26 @@
+FROM tensorflow/serving:2.3.0 as build_image
+FROM python:3.6.11-slim-buster
+
+ARG DATASET
+ARG MODEL_TYPE
+
+# Install TF Serving
+COPY --from=build_image /usr/bin/tensorflow_model_server /usr/bin/tensorflow_model_server
+
+# Install python packages
+RUN pip install --no-cache-dir absl-py requests regex
+
+COPY configs/requirements-$MODEL_TYPE.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
+
+COPY models/$MODEL_TYPE/$DATASET/1 /models/minimal-rnr-qa/1
+COPY resources/$DATASET /resources/$DATASET
+
+ENV DATASET=$DATASET
+ENV MODEL_TYPE=$MODEL_TYPE
+
+COPY workspace /workspace
+COPY entrypoint.sh /workspace/entrypoint.sh
+RUN chmod a+x /workspace/entrypoint.sh
+
+WORKDIR /workspace
