@@ -3,7 +3,8 @@
 ## Abstract
 In open-domain question answering (QA), retrieve-and-read mechanism has the inherent benefit of interpretability and the easiness of adding, removing, or editing knowledge compared to the parametric approaches of closed-book QA models. However, it is also known to suffer from its large storage footprint due to its document corpus and index. Here, we discuss several orthogonal strategies to drastically reduce the footprint of a retrieve-and-read open-domain QA system by up to 160x. Our results indicate that retrieve-and-read can be a viable option even in a highly constrained serving environment such as edge devices, as we show that it can achieve better accuracy than a purely parametric model with comparable docker-level system size.
 
-- Paper to appear at NAACL 2021
+- Paper to appear in NAACL 2021
+- Authors: [Sohee Yang](https://soheeyang.github.io/) and [Minjoon Seo](http://seominjoon.github.io/)
 - [Live Demo](http://52.156.155.214:8890)
 - BibTeX:
 
@@ -238,7 +239,7 @@ docker run \
         - INPUT_FILE_NAME=nq-dev.jsonl
     - NQ test
         - DATASET=nq / TOP_K=90 / PASSAGE_W=null
-        - INPUT_FILE_NAME=`nq-test.jsonl
+        - INPUT_FILE_NAME=nq-test.jsonl
     - Trivia dev
         - DATASET=trivia / TOP_K=100 / PASSAGE_W=null
         - INPUT_FILE_NAME=trivia-dev.jsonl
