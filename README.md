@@ -238,7 +238,7 @@ docker run \
         - INPUT_FILE_NAME=nq-dev.jsonl
     - NQ test
         - DATASET=nq / TOP_K=90 / PASSAGE_W=null
-        - INPUT_FILE_NAME=`nq-test.jsonl
+        - INPUT_FILE_NAME=nq-test.jsonl
     - Trivia dev
         - DATASET=trivia / TOP_K=100 / PASSAGE_W=null
         - INPUT_FILE_NAME=trivia-dev.jsonl
