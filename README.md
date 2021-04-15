@@ -17,7 +17,7 @@ In open-domain question answering (QA), retrieve-and-read mechanism has the inhe
 }
 ```
 
-This repository contains the code of **Minimal Retrieve & Read** that ranked the first place in the human (manual) evaluation and the second place in the automatic evaluation on "Systems Under 500Mb Track" of the [NeurIPS 2020 EfficientQA competition](https://efficientqa.github.io/).
+This repository contains the code of the **Minimal Retrieve & Read QA System** that ranked the first place in the human (manual) evaluation and the second place in the automatic evaluation on "Systems Under 500Mb Track" of the [NeurIPS 2020 EfficientQA competition](https://efficientqa.github.io/).
 
 ## A. Introduction
 
