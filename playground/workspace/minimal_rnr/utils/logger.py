@@ -20,4 +20,5 @@ def get_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
+    logger.propagate = False
     return logger
