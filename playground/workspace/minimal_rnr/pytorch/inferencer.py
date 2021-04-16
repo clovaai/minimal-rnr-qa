@@ -44,8 +44,8 @@ class TorchMinimalRnR(MinimalRnR):
 
         # returned as cuda tensors (on purpose)
         return {
-            "start_logits": start_logits.squeeze(),
-            "end_logits": end_logits.squeeze(),
+            "start_logits": start_logits.squeeze(-1),
+            "end_logits": end_logits.squeeze(-1),
             "relevance_logits": relevance_logits,
         }
 
