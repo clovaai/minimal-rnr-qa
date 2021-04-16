@@ -38,11 +38,15 @@ class TorchMinimalRnR(MinimalRnR):
         with self.torch.no_grad():
             start_logits, end_logits, relevance_logits = self.model(**torch_input)
 
+        relevance_logits = relevance_logits.squeeze()
+        if relevance_logits.dim() == 0:  # for top_k=1
+            relevance_logits = relevance_logits.unsqueeze(0)
+
         # returned as cuda tensors (on purpose)
         return {
             "start_logits": start_logits.squeeze(),
             "end_logits": end_logits.squeeze(),
-            "relevance_logits": relevance_logits.squeeze(),
+            "relevance_logits": relevance_logits,
         }
 
     def get_passage_score_weighted_answer_token_logits(self, token_logits, relevance_logits, attn_mask, passage_score_weight):

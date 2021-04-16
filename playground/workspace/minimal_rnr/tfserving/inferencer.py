@@ -31,6 +31,10 @@ class TFServingMinimalRnR(MinimalRnR):
     def get_reader_output(self, reader_input):
         reader_api_input = self._get_api_input("read", reader_input)
         reader_output = self._get_api_output(reader_api_input)
+
+        if not isinstance(reader_output["relevance_logits"], (tuple, list)):  # for top_k=1
+            reader_output["relevance_logits"] = [reader_output["relevance_logits"]]
+
         return reader_output
 
     def get_passage_score_weighted_answer_token_logits(self, token_logits, relevance_logits, attn_mask, passage_score_weight):

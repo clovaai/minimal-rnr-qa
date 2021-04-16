@@ -102,6 +102,8 @@ def get_answer_greedy(tokenizer, reader_input, reader_output):
     max_answer_length = 10
     input_ids = reader_input["input_ids"]
     relevance_logits = reader_output["relevance_logits"]
+    if not isinstance(relevance_logits, (tuple, list)):
+        relevance_logits = [relevance_logits]
 
     top_doc_idx = max(enumerate(relevance_logits), key=lambda x: x[1])[0]
 
@@ -141,6 +143,8 @@ def get_answer_deep(tokenizer, reader_input, reader_output, url, passage_score_w
     input_ids = reader_input["input_ids"]
     attn_mask = reader_input["attention_mask"]
     relevance_logits = reader_output["relevance_logits"]
+    if not isinstance(relevance_logits, (tuple, list)):
+        relevance_logits = [relevance_logits]
 
     start_logits = get_output(url, get_score_input(reader_output["start_logits"], relevance_logits, attn_mask, passage_score_weight))
     end_logits = get_output(url, get_score_input(reader_output["end_logits"], relevance_logits, attn_mask, passage_score_weight))
