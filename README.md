@@ -5,7 +5,7 @@ In open-domain question answering (QA), retrieve-and-read mechanism has the inhe
 
 - [Paper](https://arxiv.org/abs/2104.07242) (To appear in [NAACL 2021](https://2021.naacl.org/))
 - Authors: [Sohee Yang](https://soheeyang.github.io/) and [Minjoon Seo](http://seominjoon.github.io/)
-- [Live Demo](http://52.156.155.214:8890)
+- [Live Web Demo](http://52.156.155.214:8890)
 - BibTeX:
 
 ```
@@ -19,6 +19,18 @@ In open-domain question answering (QA), retrieve-and-read mechanism has the inhe
 
 This repository contains the code of the **Minimal Retrieve & Read QA System** that ranked the first place in the human (manual) evaluation and the second place in the automatic evaluation on "Systems Under 500Mb Track" of the [NeurIPS 2020 EfficientQA competition](https://efficientqa.github.io/).
 
+## Web Demo
+![image](https://user-images.githubusercontent.com/28291528/114962230-4a672c00-9ea5-11eb-8634-9b563c9d0d9a.png)
+
+You can play with the QA system in the [Live Web Demo](http://52.156.155.214:8890). You can also dynamically change the inference setting by controlling the values of `top_k` and `passage_score_weight`.
+
+- `top_k`: sets the number of passages to retrieve and pass to the reader. The value must be a positive integer. Default value is set to 50. For the live web demo, the values are limited within the range [1, 100] to prevent freezing from reading too many passages.
+- `passage_score_weight`:
+  - When the default value `null` is used, only the passage with the highest ranking score is used to extract the answers from. This is the setting used in DPR.
+  - If a float value (λ ∈ [0, 1] highly recommended) is given, multiple passages are considered to select the answer. Specifically, answer spans from multiple passages are scored using the weighted sum of passage ranking scores and answer spans scores. The weighted sum is calculated as (1 - λ) (log P<sub>start</sub> + log P<sub>end</sub>) + 2λ log P<sub>rank</sub>. Please refer to the paper for more details.
+
+If you have Docker installed, you can also run the web demo on your local machine in five minutes using [this command](#b-local-web-demo-quickstart).
+
 ## A. Introduction
 
 This repository contains the code for an interactive web demo, code for inference on the questions in a file (and evaluation on the answers), links to the model graphs/checkpoints (models), links to the index and preprocessed corpus files (resources), and links to built docker images.
@@ -26,7 +38,7 @@ This repository contains the code for an interactive web demo, code for inferenc
 - `competition` directory contains the code to build and run the minimal-sized docker container used for the EfficientQA competition. Typing `du -h /` in the launched container reports 484.68MB as its size. Please see [**E. Competition Setting: Build & Run**](#e-competition-setting-build--run) for detail.
 - `playground` directory contains more practical, refactored code to play with that one can either run a web demo or run inference on a file using models built in different settings. Please see [**D. Playground: Build & Run**](#d-playground-build--run) for detail.
 
-## B. Web Demo Quickstart
+## B. Local Web Demo Quickstart
 
 To run the web demo on your local machine, run the following using docker:
 
@@ -64,7 +76,9 @@ The follwoing are descriptions for each of the options for DATASET and MODEL_TYP
 
 ## D. Playground: Build & Run
 
-### 1. Download necessary resources
+You can skip steps 1 and 2 if you use the [pre-built docker images](#c-pre-built-docker-images).
+
+### 1. Download the code and necessary resources
 
 ```bash
 git clone https://github.com/clovaai/minimal-rnr-qa.git
@@ -153,7 +167,7 @@ docker run \
 - `--env TOP_K=$INT_VALUE` [OPTIONAL] sets the number of passages to retrieve and pass to the reader. It must be an integer value. Default value is set to 50.
 - `--env PASSAGE_W=$FLOAT_VALUE` [OPTIONAL]
     - If the option is not used (as default) or `null` is given as the value, only the passage with the highest ranking score is used to extract the answers from. This is the setting used in DPR.
-    - If the value is given, multiple passages are considered to select the answer. Specifically, answer spans from multiple passages are scored using the weighted sum of passage ranking scores and answer spans scores. The given value for this option must be $\lambda \in [0, 1]$, and the weighted sum is calculated as `$(1 - \lambda) (\log{\mathcal{P}_\text{start}} + \log{\mathcal{P}_\text{end}}) + 2\lambda \log{\mathcal{P}_\text{rank}}$`. This value may be tuned on the validation set to slightly raise the end-to-end question answering accuracy.
+    - If the value is given, multiple passages are considered to select the answer. Specifically, answer spans from multiple passages are scored using the weighted sum of passage ranking scores and answer spans scores. The given value for this option must be λ ∈ [0, 1], and the weighted sum is calculated as (1 - λ) (log P<sub>start</sub> + log P<sub>end</sub>) + 2λ log P<sub>rank</sub>. This value may be tuned on the validation set to slightly raise the end-to-end question answering accuracy.
 - `minimal-rnr-qa:$DATASET_$MODEL_TYPE` [REQUIRED] Tag of the built image.
 - `/workspace/entrypoint.sh` [REQUIRED] Entrypoint of the container.
 - `/input/$INPUT_FILE_NAME` [REQUIRED] Name of the file to run inference on. CSV or JSON Lines files are supported.
@@ -164,7 +178,9 @@ docker run \
 
 ## E. Competition Setting: Build & Run
 
-### 1. Download necessary resources
+You can skip steps 1 and 2 if you use the [pre-built docker images](#c-pre-built-docker-images).
+
+### 1. Download the code and necessary resources
 
 ```bash
 git clone https://github.com/clovaai/minimal-rnr-qa.git
@@ -177,21 +193,7 @@ tar xvf minrnr_competition_models.tar.gz
 tar xvf minrnr_competition_resources.tar.gz
 ```
 
-### 2. Prepare data (same as above)
-
-The input files for EfficientQA dev set, NQ dev & test set, and Trivia dev & test set can be downloaded at once.
-```bash
-INPUT_DIR=/tmp/minimal-rnr-qa
-OUTPUT_DIR=/tmp/minimal-rnr-qa
-
-mkdir -p $INPUT_DIR
-mkdir -p $OUTPUT_DIR
-
-wget -P $INPUT_DIR https://dl.dropboxusercontent.com/s/juh12j1z0ct3zeu/minrnr_datasets.tar.gz
-tar xvf $INPUT_DIR/minrnr_datasets.tar.gz -C $INPUT_DIR --strip-components=1
-```
-
-### 3. Build docker image
+### 2. Build docker image
 ```bash
 # inside minimal-rnr-qa/competition
 
@@ -205,6 +207,20 @@ chmod a+x ./build.sh
     - `nq`: trained on Natural Questions (Appendix A.5 in the paper)
     - `trivia`: trained on TriviaQA (Appendix A.5 in the paper)
 - This command builds a docker image tagged as `minimal-rnr-qa:$DATASET-competition`.
+
+### 3. Prepare data (same as the above)
+
+The input files for EfficientQA dev set, NQ dev & test set, and Trivia dev & test set can be downloaded at once.
+```bash
+INPUT_DIR=/tmp/minimal-rnr-qa
+OUTPUT_DIR=/tmp/minimal-rnr-qa
+
+mkdir -p $INPUT_DIR
+mkdir -p $OUTPUT_DIR
+
+wget -P $INPUT_DIR https://dl.dropboxusercontent.com/s/juh12j1z0ct3zeu/minrnr_datasets.tar.gz
+tar xvf $INPUT_DIR/minrnr_datasets.tar.gz -C $INPUT_DIR --strip-components=1
+```
 
 ### 4. Run
 
