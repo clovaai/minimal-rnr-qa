@@ -6,6 +6,7 @@ In open-domain question answering (QA), retrieve-and-read mechanism has the inhe
 - [Paper](https://arxiv.org/abs/2104.07242) (To appear in [NAACL 2021](https://2021.naacl.org/))
 - Authors: [Sohee Yang](https://soheeyang.github.io/) and [Minjoon Seo](http://seominjoon.github.io/)
 - [Live Web Demo](http://52.156.155.214:8890)
+  - The demo normally takes **1-3 seconds** for inference in the default setting, but ocassionally becomes slow according to the server condition.
 - BibTeX:
 
 ```
