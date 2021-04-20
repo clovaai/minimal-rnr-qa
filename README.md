@@ -23,7 +23,8 @@ This repository contains the code of the **Minimal Retrieve & Read QA System** t
 ## Web Demo
 ![image](https://user-images.githubusercontent.com/28291528/114962230-4a672c00-9ea5-11eb-8634-9b563c9d0d9a.png)
 
-You can play with the QA system in the [Live Web Demo](http://52.156.155.214:8890). You can also dynamically change the inference setting by controlling the values of `top_k` and `passage_score_weight`.
+You can play with the QA system in the [Live Web Demo](http://52.156.155.214:8890). You can also dynamically change the inference setting by controlling the values of `top_k` and `passage_score_weight`. (The demo normally takes **1-3 seconds** for inference in the default setting, but ocassionally becomes slow according to the server condition.
+- BibTeX:)
 
 - `top_k`: sets the number of passages to retrieve and pass to the reader. The value must be a positive integer. Default value is set to 50. For the live web demo, the values are limited within the range [1, 100] to prevent freezing from reading too many passages.
 - `passage_score_weight`:
